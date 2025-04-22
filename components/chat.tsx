@@ -11,6 +11,7 @@ export function Chat() {
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
     useChat({
       api: "/api/chat",
+      streamProtocol: "text",
       onError: (err) => {
         console.error("Chat error:", err);
       },
@@ -20,12 +21,10 @@ export function Chat() {
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Focus input on load
   useEffect(() => {
     inputRef.current?.focus();
   }, []);

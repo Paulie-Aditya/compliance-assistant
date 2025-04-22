@@ -2,6 +2,7 @@ import { generateText, tool } from "ai";
 import { z } from "zod";
 import { searchSuppliers } from "@/lib/data/supplier-queries";
 import { google } from "@ai-sdk/google";
+import { cleanupText } from "@/lib/utils";
 
 const prompt = (query: string) => `
 You are a supplier query parser. Convert this natural language query into a JSON object with the following optional fields:
@@ -15,7 +16,7 @@ You are a supplier query parser. Convert this natural language query into a JSON
 
 Query: "${query}"
 
-Only output a JSON object in key-value form, only provide a key if you are certain of its value, DO NOT PROVIDE ANY EXPLANATION, ONLY THE JSON OBJECT.
+Only output a JSON object in key-value form ONLY, only provide a key if you are certain of its value, DO NOT PROVIDE ANY EXPLANATION, ONLY THE JSON OBJECT.
 `;
 
 export const supplierSearchTool = tool({
@@ -47,18 +48,20 @@ export const supplierSearchTool = tool({
     console.log("Query passed to the tool:", params.query);
 
     // Generate the query to pass to Gemini model
-    const { text: geminiResponse } = await generateText({
+    let { text: geminiResponse } = await generateText({
       model: google("models/gemini-2.0-flash-exp"),
       prompt: prompt(params.query),
     });
 
+    geminiResponse = cleanupText(geminiResponse);
     // Log Gemini's raw response to debug
     console.log("Gemini Response:", geminiResponse);
 
     // Try to parse the response as JSON
     try {
       // Ensure the response is a valid JSON (add double quotes around keys if necessary)
-      const parsed = JSON.parse(geminiResponse);
+      const parsed = JSON.parse(JSON.stringify(geminiResponse));
+      // console.log("Parsed gemini response: ", parsed)
       filters = { ...parsed };
     } catch (e) {
       console.error("Failed to parse Gemini response:", geminiResponse);

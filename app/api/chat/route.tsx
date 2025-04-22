@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { google } from "@ai-sdk/google";
 import { supplierSearchTool } from "@/lib/tools/supplier-search-tool";
 import { generateText } from "ai";
+import { streamText } from "ai";
 
 export const runtime = "edge";
 
@@ -16,16 +17,26 @@ export async function POST(req: NextRequest) {
         }
       );
     }
-    const { text } = await generateText({
+    const result = await streamText({
       model: google("models/gemini-2.0-flash-exp"),
       messages,
-      // tools: { supplierSearch: supplierSearchTool },
-      providerOptions: {
-        google: { stream: false },
-      },
     });
-    console.log(text);
-    return Response.json({ text });
+    // for await (const textPart of result.textStream) {
+    //   console.log(textPart);
+    // }
+    return result.toTextStreamResponse();
+    // return result.toDataStreamResponse();
+
+    // const { text } = await generateText({
+    //   model: google("models/gemini-2.0-flash-exp"),
+    //   messages,
+    //   tools: { supplierSearch: supplierSearchTool },
+    //   providerOptions: {
+    //     google: { stream: false },
+    //   },
+    // });
+    // console.log(text);
+    // return Response.json({ text });
   } catch (error) {
     console.error("Chat route error:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
