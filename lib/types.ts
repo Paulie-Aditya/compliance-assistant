@@ -34,4 +34,3 @@ export interface Supplier {
     count: number
     query: SupplierSearchParams
   }
-  

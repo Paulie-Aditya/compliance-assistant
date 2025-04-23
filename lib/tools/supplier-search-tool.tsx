@@ -3,6 +3,7 @@ import { z } from "zod";
 import { searchSuppliers } from "@/lib/data/supplier-queries";
 import { google } from "@ai-sdk/google";
 import { cleanupText } from "@/lib/utils";
+import type { SupplierSearchParams } from "@/lib/types";
 
 const prompt = (query: string) => `
 You are a supplier query parser. Convert this natural language query into a JSON object with the following optional fields:
@@ -38,15 +39,12 @@ export const supplierSearchTool = tool({
       .optional(),
   }),
   execute: async (params) => {
-    let filters: Record<string, any> = {};
+    let filters: Partial<SupplierSearchParams> = {};
 
     // Check if query is provided
     if (!params.query) {
       throw new Error("Query parameter is required");
     }
-
-    console.log("Query passed to the tool:", params.query);
-
     // Generate the query to pass to Gemini model
     let { text: geminiResponse } = await generateText({
       model: google("models/gemini-2.0-flash-exp"),
@@ -54,16 +52,14 @@ export const supplierSearchTool = tool({
     });
 
     geminiResponse = cleanupText(geminiResponse);
-    // Log Gemini's raw response to debug
-    console.log("Gemini Response:", geminiResponse);
 
     // Try to parse the response as JSON
     try {
       // Ensure the response is a valid JSON (add double quotes around keys if necessary)
       const parsed = JSON.parse(JSON.stringify(geminiResponse));
-      // console.log("Parsed gemini response: ", parsed)
       filters = { ...parsed };
     } catch (e) {
+      console.log(e);
       console.error("Failed to parse Gemini response:", geminiResponse);
     }
 
@@ -78,11 +74,14 @@ export const supplierSearchTool = tool({
     // Query the supplier database using the generated filters
     const results = searchSuppliers(filters);
 
-    return {
-      filtersUsed: filters,
-      suppliers: results.suppliers,
-      count: results.count,
-      query: params.query,
-    };
+    // return JSON.stringify({
+    //   filtersUsed: filters,
+    //   suppliers: results.suppliers,
+    //   count: results.count,
+    //   query: params.query,
+    //   role: "tool",
+    //   name: "supplierSearch",
+    // });
+    return results.suppliers;
   },
 });
