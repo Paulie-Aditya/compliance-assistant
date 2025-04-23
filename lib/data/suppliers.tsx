@@ -1,11 +1,15 @@
-import type { Supplier } from "@/lib/types"
+import type { Supplier } from "@/lib/types";
 
 export const suppliers: Supplier[] = [
   {
     id: "sup-001",
     name: "TechGlobal Solutions",
     riskScore: 8.5,
-    riskCategories: ["Data Security", "Regulatory Compliance", "Financial Stability"],
+    riskCategories: [
+      "Data Security",
+      "Regulatory Compliance",
+      "Financial Stability",
+    ],
     location: "United States",
     industry: "Technology",
     lastAuditDate: "2023-09-15",
@@ -21,18 +25,24 @@ export const suppliers: Supplier[] = [
     industry: "Manufacturing",
     lastAuditDate: "2023-11-20",
     complianceStatus: "Compliant",
-    description: "Sustainable manufacturing company with good environmental practices.",
+    description:
+      "Sustainable manufacturing company with good environmental practices.",
   },
   {
     id: "sup-003",
     name: "AsiaLogistics Ltd.",
     riskScore: 7.8,
-    riskCategories: ["Supply Chain Disruption", "Geopolitical", "Regulatory Compliance"],
+    riskCategories: [
+      "Supply Chain Disruption",
+      "Geopolitical",
+      "Regulatory Compliance",
+    ],
     location: "Singapore",
     industry: "Logistics",
     lastAuditDate: "2023-08-05",
     complianceStatus: "Under Review",
-    description: "Major logistics provider in Asia with complex supply chain networks.",
+    description:
+      "Major logistics provider in Asia with complex supply chain networks.",
   },
   {
     id: "sup-004",
@@ -43,13 +53,18 @@ export const suppliers: Supplier[] = [
     industry: "Financial Services",
     lastAuditDate: "2023-10-12",
     complianceStatus: "Compliant",
-    description: "European financial services provider with moderate compliance risks.",
+    description:
+      "European financial services provider with moderate compliance risks.",
   },
   {
     id: "sup-005",
     name: "MedTech Innovations",
     riskScore: 9.2,
-    riskCategories: ["Product Safety", "Regulatory Compliance", "Quality Control"],
+    riskCategories: [
+      "Product Safety",
+      "Regulatory Compliance",
+      "Quality Control",
+    ],
     location: "United States",
     industry: "Healthcare",
     lastAuditDate: "2023-07-30",
@@ -65,7 +80,8 @@ export const suppliers: Supplier[] = [
     industry: "Energy",
     lastAuditDate: "2023-12-01",
     complianceStatus: "Compliant",
-    description: "Renewable energy provider with strong environmental compliance.",
+    description:
+      "Renewable energy provider with strong environmental compliance.",
   },
   {
     id: "sup-007",
@@ -111,4 +127,4 @@ export const suppliers: Supplier[] = [
     complianceStatus: "Under Review",
     description: "Shipping company with regulatory compliance challenges.",
   },
-]
+];
