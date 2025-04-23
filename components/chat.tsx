@@ -11,7 +11,6 @@ export function Chat() {
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
     useChat({
       api: "/api/chat",
-      streamProtocol: "text",
       onError: (err) => {
         console.error("Chat error:", err);
       },

@@ -21,30 +21,10 @@ export async function POST(req: NextRequest) {
       messages,
       tools: { supplierSearch: supplierSearchTool },
     });
-    return result.toTextStreamResponse();
-    // Capture the tool call result
-    let toolOutput = null;
-    for await (const message of (await result.toolCalls) || []) {
-      if (message.toolName === "supplierSearch" && message.output) {
-        toolOutput = message.output;
-        break;
-      }
+    for await (const textPart of result.textStream) {
+      console.log(textPart);
     }
-
-    let response;
-    if (toolOutput) {
-      response = await streamText({
-        model: google("models/gemini-2.0-flash-exp"),
-        prompt: `Here is the data about suppliers: ${toolOutput}. Please summarize this information in a human-readable and easy-to-understand format.`,
-      });
-    } else {
-      response = await streamText({
-        model: google("models/gemini-2.0-flash-exp"),
-        messages,
-      });
-    }
-
-    return response.toTextStreamResponse();
+    return result.toDataStreamResponse();
   } catch (error) {
     console.error("Chat route error:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {

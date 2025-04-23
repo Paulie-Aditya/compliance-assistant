@@ -74,14 +74,14 @@ export const supplierSearchTool = tool({
     // Query the supplier database using the generated filters
     const results = searchSuppliers(filters);
 
-    // return JSON.stringify({
-    //   filtersUsed: filters,
-    //   suppliers: results.suppliers,
-    //   count: results.count,
-    //   query: params.query,
-    //   role: "tool",
-    //   name: "supplierSearch",
-    // });
+    return JSON.stringify({
+      filtersUsed: filters,
+      suppliers: results.suppliers,
+      count: results.count,
+      query: params.query,
+      role: "tool",
+      name: "supplierSearch",
+    });
     return results.suppliers;
   },
 });
