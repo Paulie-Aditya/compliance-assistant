@@ -1,11 +1,14 @@
 "use client";
 
-import type { Message, ToolInvocation } from "ai";
+import type { Message } from "ai";
 import { cn } from "@/lib/utils";
 import type { SupplierResult, SupplierSearchResult } from "@/lib/types";
 import { SupplierCard } from "./supplier-card";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+
+// Use the actual part type from the Message
+type MessagePart = NonNullable<Message["parts"]>[number];
 
 interface ChatMessageProps {
   message: Message;
@@ -14,7 +17,7 @@ interface ChatMessageProps {
 export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === "user";
 
-  // If there are structured parts (text/tool events)
+  // Render structured parts if available
   if (message.parts && message.parts.length > 0) {
     return (
       <div
@@ -31,29 +34,27 @@ export function ChatMessage({ message }: ChatMessageProps) {
               : "bg-muted text-muted-foreground rounded-tr-2xl rounded-tl-md rounded-br-md"
           )}
         >
-          {message.parts.map((part, idx) => {
-            const { type } = part as any;
-
+          {message.parts.map((part: MessagePart, idx: number) => {
             // Plain text delta
-            if (type === "text") {
+            if (part.type === "text") {
               return (
                 <div key={idx} className="text-sm whitespace-pre-wrap">
-                  {(part as any).text}
+                  {part.text}
                 </div>
               );
             }
 
-            // Boundaries between reasoning/tool steps
-            if (type === "step-start") {
+            // Step boundary
+            if (part.type === "step-start") {
               return <hr key={idx} className="my-2 border-gray-300" />;
             }
 
-            // Tool invocation events
-            if (type === "tool-invocation" || type === "toolInvocation") {
-              const invocation = (part as any).toolInvocation as ToolInvocation;
+            // Tool invocation
+            if (part.type === "tool-invocation") {
+              const invocation = part.toolInvocation;
               if (invocation.toolName !== "supplierSearch") return null;
 
-              // While calling the tool
+              // Loading state
               if (
                 invocation.state === "call" ||
                 invocation.state === "partial-call"
@@ -81,11 +82,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
                       :
                     </div>
                     <div className="grid grid-cols-1 gap-3">
-                      {result.suppliers.map(
-                        (sup: SupplierResult, i: number) => (
-                          <SupplierCard key={sup.id} supplier={sup} />
-                        )
-                      )}
+                      {result.suppliers.map((sup: SupplierResult) => (
+                        <SupplierCard key={sup.id} supplier={sup} />
+                      ))}
                     </div>
                   </div>
                 );
@@ -99,7 +98,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
     );
   }
 
-  // Fallback: markdown content
+  // Fallback to markdown rendering
   return (
     <div
       className={cn("mb-4 flex px-2", isUser ? "justify-end" : "justify-start")}
