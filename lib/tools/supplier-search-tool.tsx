@@ -13,13 +13,19 @@ You are a supplier query parser. Convert this natural language query into a JSON
 - location (string)
 - industry (string)
 - riskCategory (string)
-- complianceStatus ("Compliant" | "Non-Compliant" | "Under Review")
+- complianceStatus (array of "Compliant" | "Non-Compliant" | "Under Review")
+- sortBy ("riskScore" | "name")
+- sortOrder ("asc" | "desc")
+- limit (integer)
+
+Assume minRiskScore to be 0 unless specified in query, and assume maxRiskScore to be 10 unless specified in query
 
 Query: "${query}"
 
 Only output a JSON object in key-value form ONLY, only provide a key if you are certain of its value, DO NOT PROVIDE ANY EXPLANATION, ONLY THE JSON OBJECT.
 `;
 
+const ComplianceEnum = z.enum(["Compliant", "Non-Compliant", "Under Review"]);
 export const supplierSearchTool = tool({
   description:
     "Search suppliers using structured filters or natural language queries.",
@@ -34,9 +40,10 @@ export const supplierSearchTool = tool({
     location: z.string().optional(),
     industry: z.string().optional(),
     riskCategory: z.string().optional(),
-    complianceStatus: z
-      .enum(["Compliant", "Non-Compliant", "Under Review"])
-      .optional(),
+    complianceStatus: z.array(ComplianceEnum).optional(), // now an array
+    sortBy: z.enum(["riskScore", "name"]).optional(),
+    sortOrder: z.enum(["asc", "desc"]).optional(),
+    limit: z.number().int().min(1).optional(),
   }),
   execute: async (params) => {
     let filters: Partial<SupplierSearchParams> = {};
@@ -71,10 +78,13 @@ export const supplierSearchTool = tool({
 
     // Query the supplier database using the generated filters
     const results = searchSuppliers(filters);
-
+    let sliced = results.suppliers;
+    if (filters.limit !== undefined) {
+      sliced = sliced.slice(0, filters.limit);
+    }
     return {
       filtersUsed: filters,
-      suppliers: results.suppliers,
+      suppliers: sliced,
       count: results.count,
       query: params.query,
       role: "tool",

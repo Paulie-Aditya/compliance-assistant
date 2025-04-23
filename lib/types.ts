@@ -25,10 +25,12 @@ export interface Supplier {
     location?: string
     industry?: string
     riskCategory?: string
-    complianceStatus?: string
+    complianceStatus?: string[] 
     query?: string
-  }
-  
+    sortBy?: "riskScore" | "name" // will expand this later
+    sortOrder?: "asc" | "desc"
+    limit?: number 
+  }  
   export interface SupplierSearchResult {
     suppliers: SupplierResult[]
     count: number

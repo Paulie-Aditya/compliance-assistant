@@ -8,7 +8,7 @@ This application provides a chat interface powered by the Vercel AI SDK that all
 
 ## Live Demo
 
-[Link to deployed application](https://compliance-assistant.vercel.app)
+[Link to deployed application](https://compliance-assistant-gemini.vercel.app/)
 
 ## Features
 
