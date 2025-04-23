@@ -24,7 +24,13 @@ export async function POST(req: NextRequest) {
     for await (const textPart of result.textStream) {
       console.log(textPart);
     }
-    return result.toDataStreamResponse();
+    return result.toDataStreamResponse({
+      getErrorMessage(error: unknown) {
+        if (error instanceof Error) return error.message;
+        if (typeof error === "string") return error;
+        return JSON.stringify(error);
+      },
+    });
   } catch (error) {
     console.error("Chat route error:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {

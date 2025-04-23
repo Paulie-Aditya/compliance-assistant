@@ -46,24 +46,22 @@ export const supplierSearchTool = tool({
       throw new Error("Query parameter is required");
     }
     // Generate the query to pass to Gemini model
-    let { text: geminiResponse } = await generateText({
+    const { text: geminiResponse } = await generateText({
       model: google("models/gemini-2.0-flash-exp"),
       prompt: prompt(params.query),
     });
 
-    geminiResponse = cleanupText(geminiResponse);
-
-    // Try to parse the response as JSON
+    const cleaned = cleanupText(geminiResponse)
+      .trim()
+      .replace(/^```(?:json)?\s*/, "")
+      .replace(/```$/, "")
+      .trim();
     try {
-      // Ensure the response is a valid JSON (add double quotes around keys if necessary)
-      const parsed = JSON.parse(JSON.stringify(geminiResponse));
-      filters = { ...parsed };
-    } catch (e) {
-      console.log(e);
-      console.error("Failed to parse Gemini response:", geminiResponse);
+      const parsed = JSON.parse(cleaned);
+      filters = parsed; // now an object, not a string
+    } catch (err) {
+      console.error("Failed to JSON.parse Gemini output:", cleaned, err);
     }
-
-    // Manual overrides from the parameters
     filters = {
       ...filters,
       ...Object.fromEntries(
@@ -74,14 +72,13 @@ export const supplierSearchTool = tool({
     // Query the supplier database using the generated filters
     const results = searchSuppliers(filters);
 
-    return JSON.stringify({
+    return {
       filtersUsed: filters,
       suppliers: results.suppliers,
       count: results.count,
       query: params.query,
       role: "tool",
       name: "supplierSearch",
-    });
-    return results.suppliers;
+    };
   },
 });

@@ -41,7 +41,7 @@ export function Chat() {
                 Ask questions about supplier risks such as:
               </p>
               <ul className="text-sm text-gray-500 space-y-2">
-                <li>Show me high-risk suppliers</li>
+                <li>Show me high-risk suppliers, risk score above 5</li>
                 <li>
                   Which suppliers in the technology sector have risk scores
                   above 7?
